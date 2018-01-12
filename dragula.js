@@ -27,6 +27,7 @@ function dragula (initialContainers, options) {
   var _grabbed; // holds mousedown context until first mousemove
 
   var drag = perFrame(_drag);
+  var getElementBehindPoint = document.elementsFromPoint ? fastElementBehindPoint : slowElementBehindPoint;
 
   var o = options || {};
   if (o.moves === void 0) { o.moves = always; }
@@ -549,7 +550,28 @@ function getScroll (scrollProp, offsetProp) {
   return doc.body[scrollProp];
 }
 
-function getElementBehindPoint (point, x, y) {
+/** Uses elementsFromPoint to get the item under the cursor without hiding/unhiding the dragged element. */
+function fastElementBehindPoint (point, x, y) {
+  /** Returns the first element in an array matching a predicate, or undefined. */
+  function find(array, predicate) {
+    var len = array.length;
+    for (var i = 0; i < len; i++) {
+      var current = array[i];
+      if (predicate(current)) { return current; }
+    }
+    return undefined;
+  }
+
+  if (!point) {
+    return doc.elementFromPoint(x, y);
+  }
+  var elements = document.elementsFromPoint(x, y);
+  return find(elements, function (e) {
+    return !point.contains(e);
+  });
+}
+
+function slowElementBehindPoint (point, x, y) {
   var p = point || {};
   var state = p.className;
   var el;
