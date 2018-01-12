@@ -26,6 +26,8 @@ function dragula (initialContainers, options) {
   var _lastDropTarget = null; // last container item was over
   var _grabbed; // holds mousedown context until first mousemove
 
+  var drag = perFrame(_drag);
+
   var o = options || {};
   if (o.moves === void 0) { o.moves = always; }
   if (o.accepts === void 0) { o.accepts = always; }
@@ -355,7 +357,7 @@ function dragula (initialContainers, options) {
     }
   }
 
-  function drag (e) {
+  function _drag (e) {
     if (!_mirror) {
       return;
     }
@@ -592,6 +594,19 @@ function getEventHost (e) {
     return e.changedTouches[0];
   }
   return e;
+}
+
+/** Limits an event handler to only run once per frame */
+function perFrame(original) {
+	var _currentAnimationFrame = null;
+	return function(event) {
+		// Do not trigger multiple times per frame
+		if (_currentAnimationFrame) { window.cancelAnimationFrame(_currentAnimationFrame); }
+		_currentAnimationFrame = window.requestAnimationFrame(function() {
+			original(event);
+			_currentAnimationFrame = null;
+		});
+	}
 }
 
 function getCoord (coord, e) {
