@@ -105,6 +105,11 @@ function dragula (initialContainers, options) {
       return;
     }
     _grabbed = context;
+
+    var offset = getOffset(item);
+    _offsetX = getCoord('pageX', e) - offset.left;
+    _offsetY = getCoord('pageY', e) - offset.top;
+
     eventualMovements();
     if (e.type === 'mousedown') {
       if (isInput(item)) { // see also: https://github.com/bevacqua/dragula/issues/208
@@ -141,10 +146,6 @@ function dragula (initialContainers, options) {
     movements();
     end();
     start(grabbed);
-
-    var offset = getOffset(_item);
-    _offsetX = getCoord('pageX', e) - offset.left;
-    _offsetY = getCoord('pageY', e) - offset.top;
 
     classes.add(_copy || _item, 'gu-transit');
     renderMirrorImage();
